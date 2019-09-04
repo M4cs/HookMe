@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify
 import subprocess, uuid, os
 import logging, time
-
+import json
+import pprint
+from io import StringIO
+import sys
 app = Flask(__name__)
 
 log = logging.getLogger('werkzeug')
@@ -22,9 +25,12 @@ def serveo_forward():
 def index():
     if request.method == 'POST':
         webhook = request.json
-        print('\n\r' + 'WEBHOOK'.center(40, '='))
-        print('\n\r', webhook)
-        print('\n\r' + 'END'.center(40, '='))
-        return jsonify(webhook)
+        print('<<<< WEBHOOK >>>>')
+        print('\r')
+        print(json.dumps(webhook))
+        print('\r')
+        print('<<<<   END   >>>>')
+        print('\r')
+        return jsonify('Thanks!')
     else:
         return jsonify('Webhook Running, Check Console For Webhook URL')
