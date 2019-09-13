@@ -3,33 +3,25 @@ import subprocess, uuid, os
 import logging, time
 import json
 import pprint
+from fabulous.color import *
 from io import StringIO
-import sys
+import sys, subprocess
 app = Flask(__name__)
-
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 
-@app.before_first_request
-def serveo_forward():
-    id = str(uuid.uuid4()).split('-')[0]
-    domain = "webhooks_{}.serveo.net".format(id)
-    FNULL = open(os.devnull, 'w')
-    p = subprocess.Popen(['ssh', '-R', '{}:80:127.0.0.1:5000'.format(domain), 'serveo.net'], stdout=FNULL, stderr=subprocess.STDOUT)
-    print('')
-    print('WEBHOOK URL: https://%s' % domain)
-    print('PRESS CRTL+C TWICE TO QUIT')
-
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        webhook = request.json
-        print('<<<< WEBHOOK >>>>')
+        webhook = request.data
+        print(green(bold('<<<< WEBHOOK >>>>')))
         print('\r')
-        print(json.dumps(webhook))
+        buf = StringIO(json.dumps(json.loads(webhook), indent=4))
+        for line in buf.readlines():
+            print('\r' + line.replace('\n', ''))
         print('\r')
-        print('<<<<   END   >>>>')
+        print(green(bold('<<<<   END   >>>>')))
         print('\r')
         return jsonify('Thanks!')
     else:

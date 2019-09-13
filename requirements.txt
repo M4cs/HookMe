@@ -1,1 +1,2 @@
-flask
+Flask==1.0.3
+flask_ngrok==0.0.25

@@ -1,5 +1,7 @@
 from app import app
+from crayons import *
+
 
 if __name__ == "__main__":
-    print('REQUEST http://localhost:5000 IN BROWSER TO START WEBHOOK SERVER')
-    app.run('127.0.0.1')
+    print(green('RUN: "ngrok http 5000", IN ANOTHER TERMINAL WINDOW TO PORT FORWARD'))
+    app.run('0.0.0.0', port=5050)
