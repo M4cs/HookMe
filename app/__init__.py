@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import subprocess, uuid, os
 import logging, time
 import json
 import pprint
-from fabulous.color import *
 from io import StringIO
 import sys, subprocess
 app = Flask(__name__)
@@ -11,18 +10,37 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/trisha', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
         webhook = request.data
-        print(green(bold('<<<< WEBHOOK >>>>')))
-        print('\r')
-        buf = StringIO(json.dumps(json.loads(webhook), indent=4))
-        for line in buf.readlines():
-            print('\r' + line.replace('\n', ''))
-        print('\r')
-        print(green(bold('<<<<   END   >>>>')))
-        print('\r')
-        return jsonify('Thanks!')
+        with open('app/templates/trisha.html', 'r+') as trisha:
+            trisha.truncate()
+            trisha.seek(0)
+            trisha.write(f"""\
+=============== WEBHOOK =============
+{json.dumps(webhook, indent=4)}
+================= END ===============
+
+""")
+            trisha.close()
     else:
-        return jsonify('Webhook Running, Check Console For Webhook URL')
+        return render_template('trisha.html')
+
+
+@app.route('/max', methods=['POST', 'GET'])
+def max_hook():
+    if request.method == 'POST':
+        webhook = request.data
+        with open('app/templates/max.html', 'r+') as trisha:
+            trisha.truncate()
+            trisha.seek(0)
+            trisha.write(f"""\
+=============== WEBHOOK =============
+{json.dumps(webhook, indent=4)}
+================= END ===============
+
+""")
+            trisha.close()
+    else:
+        return render_template('max.html')
