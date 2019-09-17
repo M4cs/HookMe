@@ -4,43 +4,31 @@ import logging, time
 import json
 import pprint
 from io import StringIO
-import sys, subprocess
+import sys
 app = Flask(__name__)
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 
-@app.route('/trisha', methods=['POST', 'GET'])
+@app.before_first_request
+def serveo_forward():
+    id = str(uuid.uuid4()).split('-')[0]
+    domain = "webhooks_{}.serveo.net".format(id)
+    FNULL = open(os.devnull, 'w')
+    p = subprocess.Popen(['ssh', '-R', '{}:80:127.0.0.1:5000'.format(domain), 'serveo.net'], stdout=FNULL, stderr=subprocess.STDOUT)
+    print('')
+    print('WEBHOOK URL: https://%s' % domain)
+    print('PRESS CRTL+C TWICE TO QUIT')
+
+@app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        webhook = request.data
-        with open('app/templates/trisha.html', 'r+') as trisha:
-            trisha.truncate()
-            trisha.seek(0)
-            trisha.write(f"""\
-=============== WEBHOOK =============
-{json.dumps(webhook, indent=4)}
-================= END ===============
-
-""")
-            trisha.close()
-    else:
-        return render_template('trisha.html')
-
-
-@app.route('/max', methods=['POST', 'GET'])
-def max_hook():
-    if request.method == 'POST':
-        webhook = request.data
-        with open('app/templates/max.html', 'r+') as trisha:
-            trisha.truncate()
-            trisha.seek(0)
-            trisha.write(f"""\
-=============== WEBHOOK =============
-{json.dumps(webhook, indent=4)}
-================= END ===============
-
-""")
-            trisha.close()
-    else:
-        return render_template('max.html')
+        webhook = request.json
+        print('<<<< WEBHOOK >>>>')
+        print('\r')
+        print(json.dumps(webhook))
+        print('\r')
+        print('<<<<   END   >>>>')
+        print('\r')
+        return jsonify('Thanks!')
